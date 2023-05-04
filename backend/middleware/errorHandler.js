@@ -1,4 +1,4 @@
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   // If we get given back the specified error code then display it || Otherwise show error code 500
   const statusCode = res.statusCode ? res.statusCode : 500;
 

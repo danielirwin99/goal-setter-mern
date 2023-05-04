@@ -1,10 +1,13 @@
+// Installed an async handler --> Replaces a try catch method
+const asyncHandler = require("express-async-handler");
+
 // Get Request
-const getGoals = (req, res) => {
+const getGoals = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Get Goals" });
-};
+});
 
 // Post Request
-const setGoal = (req, res) => {
+const setGoal = asyncHandler(async (req, res) => {
   console.log(req.body);
   // If there is no text
   if (!req.body.text) {
@@ -13,17 +16,17 @@ const setGoal = (req, res) => {
   }
 
   res.status(200).json({ msg: "Post Goals" });
-};
+});
 
 // Put Request -->
-const updateGoal = (req, res) => {
+const updateGoal = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Update Goals" });
-};
+});
 
 // Delete Request
-const deleteGoal = (req, res) => {
+const deleteGoal = asyncHandler(async (req, res) => {
   res.status(200).json({ msg: "Delete Goals" });
-};
+});
 
 module.exports = {
   getGoals,

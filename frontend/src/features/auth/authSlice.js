@@ -35,10 +35,25 @@ export const register = createAsyncThunk(
   }
 );
 
+// Login User
+export const login = createAsyncThunk("auth/login", async (user, thunkAPI) => {
+  try {
+    return await authService.login(user);
+  } catch (error) {
+    // If it finds any errors it can display them in these structure types
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    // It will send the rejection message as the payload
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
 // Logout Function
-export const logout = createAsyncThunk("auth/logout", async() => {
-    await authService.logout()
-})
+export const logout = createAsyncThunk("auth/logout", async () => {
+  await authService.logout();
+});
 
 export const authSlice = createSlice({
   name: "auth",
@@ -56,6 +71,8 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+      // REGISTERING
       // When the its pending
       .addCase(register.pending, (state) => {
         state.isLoading = true;
@@ -67,6 +84,7 @@ export const authSlice = createSlice({
         state.isSuccess = true;
         state.user = action.payload;
       })
+      // When its rejected
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
         // Set to true because there was an error (its rejecting)
@@ -74,6 +92,32 @@ export const authSlice = createSlice({
         // The message is being sent to the payload --> Refer to the return thunkAPI above
         state.message = action.payload;
         // Something went wrong during the register so no user is logged
+        state.user = null;
+      })
+      // LOGIN
+      // When the its pending
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+      })
+      // When its fufilled
+      .addCase(login.fulfilled, (state, action) => {
+        // We don't want the loading state after the action has completed
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      // When its rejected
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        // Set to true because there was an error (its rejecting)
+        state.isError = true;
+        // The message is being sent to the payload --> Refer to the return thunkAPI above
+        state.message = action.payload;
+        // Something went wrong during the register so no user is logged
+        state.user = null;
+      })
+      // LOGOUT FUNCTION
+      .addCase(logout.fulfilled, (state) => {
         state.user = null;
       });
   },

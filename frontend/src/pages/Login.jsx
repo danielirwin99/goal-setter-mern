@@ -1,6 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { login, reset } from "../features/auth/authSlice";
+import Spinner from "../components/Spinner";
 
 const Login = () => {
   // Initial states of the Forms
@@ -11,6 +16,13 @@ const Login = () => {
 
   // Destructuring the values to use in each input
   const { email, password } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
 
   const onChange = (e) => {
     // Allows us to the change the Data / Use it
@@ -25,7 +37,36 @@ const Login = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    // Same as Registering a user but INSTEAD we are validating the User
+    const userData = {
+      email,
+      password,
+    };
+
+    dispatch(login(userData));
   };
+
+  useEffect(() => {
+    // If the error is true / We have an error --> Show the error
+    if (isError) {
+      toast.error(message);
+    }
+
+    // If the login was successful OR they are already logged in
+    if (isSuccess || user) {
+      // Navigate us to the Dashboard
+      navigate("/");
+    }
+
+    dispatch(reset());
+
+    // We want this to fire off whenever any of these dependencies change
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>

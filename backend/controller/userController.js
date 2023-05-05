@@ -40,6 +40,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
+      token: generateToken(user._id),
     });
   } else {
     res.status(400);
@@ -60,9 +61,12 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await bcrypt.compare(password, user.password))) {
     // We respond with the same info back that they registered with above
     res.json({
+      // All the information we get back
       _id: user.id,
       name: user.name,
       email: user.email,
+      // This is created from JWT --> Check below
+      token: generateToken(user._id),
     });
   } else {
     // Throw this back if its wrong
@@ -73,9 +77,25 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // @desc Get user data
 // @route GET /api/users/me
-// @access Public
+// @access Private
 const getUser = asyncHandler(async (req, res) => {
-  await res.json({ msg: "User data display" });
+  // Finds the credentials after you're logged in
+  const { _id, name, email } = await User.findById(req.user.id);
+  // When we hit send it responds with these three unique user credentials
+  res.status(200).json({
+    id: _id,
+    name,
+    email,
+  });
 });
+
+// Generate JWT --> Json Web Token
+const generateToken = (id) => {
+  // Pass in the data we want to put in there
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    // 30 Days
+    expiresIn: "30d",
+  });
+};
 
 module.exports = { registerUser, loginUser, getUser };

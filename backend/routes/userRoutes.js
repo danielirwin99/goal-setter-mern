@@ -5,11 +5,12 @@ const {
   loginUser,
   getUser,
 } = require("../controller/userController");
+const { protect } = require("../middleware/authMiddleware");
 
 // When we make a post request to "/" --> "/api/users"
 // -- We are adding a user / registering one
 router.post("/", registerUser);
 router.post("/login", loginUser);
-router.get("/me", getUser);
+router.get("/me", protect, getUser);
 
 module.exports = router;

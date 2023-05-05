@@ -1,6 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { register, reset } from "../features/auth/authSlice";
+import Spinner from "../components/Spinner";
 
 const Register = () => {
   // Initial states of the Forms
@@ -13,6 +18,13 @@ const Register = () => {
 
   // Destructuring the values to use in each input
   const { name, email, password, password2 } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
 
   const onChange = (e) => {
     // Allows us to the change the Data / Use it
@@ -27,7 +39,42 @@ const Register = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    // If the first password doesnt match the second one then throw the Error message
+    if (password !== password2) {
+      toast.error("Passwords do not match");
+      // If they do match then we want to register the user
+    } else {
+      const userData = {
+        name,
+        email,
+        password,
+      };
+      // Dispatch the credentials
+      dispatch(register(userData));
+    }
   };
+
+  useEffect(() => {
+    // If the error is true / We have an error --> Show the error
+    if (isError) {
+      toast.error(message);
+    }
+
+    // If the login was successful OR they are already logged in
+    if (isSuccess || user) {
+      // Navigate us to the Dashboard
+      navigate("/");
+    }
+
+    dispatch(reset());
+
+    // We want this to fire off whenever any of these dependencies change
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>

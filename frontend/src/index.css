@@ -108,6 +108,15 @@ h3 {
   background: none;
 }
 
+.Login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.SignIn {
+  margin-right: 24px;
+}
+
 .form,
 .content {
   width: 70%;

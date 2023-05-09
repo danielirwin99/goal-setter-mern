@@ -55,6 +55,30 @@ export const getGoals = createAsyncThunk(
   }
 );
 
+// Delete User Goal
+export const deleteGoal = createAsyncThunk(
+  "goals/delete",
+  async (id, thunkAPI) => {
+    try {
+      // Getting our token thats in our localStorage / user.state
+      // --> thunkAPI has a get state method built in
+      // .auth (the part of the state we want) .user (specific user we want) .token (gets our user token)
+      const token = thunkAPI.getState().auth.user.token;
+      return await goalService.deleteGoal(id, token);
+    } catch (error) {
+      // If it finds any errors it can display them in these structure types
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      // It will send the rejection message as the payload
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 //
 export const goalsSlice = createSlice({
   name: "goal",
@@ -68,7 +92,6 @@ export const goalsSlice = createSlice({
       .addCase(createGoal.pending, (state) => {
         state.isLoading = true;
       })
-
       .addCase(createGoal.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
@@ -79,16 +102,37 @@ export const goalsSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+
+      // GET GOALS
       .addCase(getGoals.pending, (state) => {
         state.isLoading = true;
       })
-      // GET GOALS
       .addCase(getGoals.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.getGoals = action.payload;
+        state.goals = action.payload;
       })
       .addCase(getGoals.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+
+      // DELETE GOALS
+      .addCase(deleteGoal.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteGoal.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        // Without this if we hit delete it won't go straight away in the UI
+        // We are filtering out the one we delete from the rest to remove it from the UI
+        // TLDR : Only showing goals that are not that
+        state.goals = state.goals.filter(
+          (goal) => goal._id !== action.payload.id
+        )
+      })
+      .addCase(deleteGoal.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;

@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import GoalForm from "../components/GoalForm";
 import Spinner from "../components/Spinner";
-import { getGoals, reset } from "../features/goals/goalSlice";
+import { getGoals } from "../features/goals/goalSlice";
+import { reset } from "../features/auth/authSlice";
+import GoalItem from "../components/GoalItem";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -22,20 +24,19 @@ const Dashboard = () => {
       console.log(message);
     }
 
-    // Fetch the goals from the backend
-    dispatch(getGoals());
-
-    // Resets the form after we fire it
-    return () => {
-      dispatch(reset());
-    };
-
     // If there is no User --> We want to navigate the Client to the login page
     if (!user) {
       navigate("/login");
     }
+
+    // Fetch the goals from the backend
+    dispatch(getGoals());
+
+    return () => {
+      dispatch(reset());
+    };
     // Dependencies
-  }, [user, navigate, isError, message, dispatch]);
+  }, [user, dispatch, isError, message, navigate]);
 
   if (isLoading) {
     return <Spinner />;
@@ -48,6 +49,17 @@ const Dashboard = () => {
         <p>Goals Dashboard</p>
       </section>
       <GoalForm />
+      <section className="content">
+        {goals.length > 0 ? (
+          <div className="goals">
+            {goals.map((goal) => (
+              <GoalItem key={goal._id} goal={goal} />
+            ))}
+          </div>
+        ) : (
+          <h3>You have not set any goals </h3>
+        )}
+      </section>
     </>
   );
 };

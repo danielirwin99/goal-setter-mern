@@ -1,6 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { FaUser } from "react-icons/fa";
+import {
+  FaExchangeAlt,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaUser,
+} from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -71,10 +76,12 @@ const Login = () => {
   return (
     <>
       <section className="heading">
-        <h1>
-          <FaUser /> Register
-        </h1>
-        <p>Login and Start Setting Goals</p>
+        <div>
+          <h1 className="Login">
+            <FaSignInAlt className="SignIn" /> Login
+          </h1>
+          <p>Login and Start Setting Goals</p>
+        </div>
       </section>
       <section className="form">
         <form onSubmit={onSubmit}>
